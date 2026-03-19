@@ -1,6 +1,5 @@
 target
-.idea
 .git
-.gitignore
+.idea
+*.iml
 README.md
-HELP.md

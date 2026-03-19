@@ -1,17 +1,5 @@
-FROM eclipse-temurin:17-jdk AS build
-
+FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
-
-COPY . .
-
-RUN chmod +x mvnw && ./mvnw clean package -DskipTests
-
-FROM eclipse-temurin:17-jre
-
-WORKDIR /app
-
-COPY --from=build /app/target/*.jar app.jar
-
+COPY target/cadastro.jar cadastro.jar
 EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "cadastro.jar"]

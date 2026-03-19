@@ -2,7 +2,6 @@ package com.seuprojeto.cadastro.service;
 
 import com.seuprojeto.cadastro.model.Pessoa;
 import com.seuprojeto.cadastro.repository.PessoaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,30 +10,52 @@ import java.util.Optional;
 @Service
 public class PessoaService {
 
-    @Autowired
-    private PessoaRepository repository;
+    private final PessoaRepository pessoaRepository;
 
-    public Pessoa salvar(Pessoa pessoa) {
-        return repository.save(pessoa);
+    public PessoaService(PessoaRepository pessoaRepository) {
+        this.pessoaRepository = pessoaRepository;
     }
 
     public List<Pessoa> listarTodas() {
-        return repository.findAll();
+        return pessoaRepository.findAll();
     }
 
     public Optional<Pessoa> buscarPorId(Long id) {
-        return repository.findById(id);
+        return pessoaRepository.findById(id);
     }
 
-    public Pessoa atualizar(Long id, Pessoa pessoaAtualizada) {
-        return repository.findById(id).map(pessoa -> {
-            pessoa.setNome(pessoaAtualizada.getNome());
-            pessoa.setEmail(pessoaAtualizada.getEmail());
-            return repository.save(pessoa);
-        }).orElse(null);
+    public Pessoa criar(Pessoa pessoa) {
+        Optional<Pessoa> pessoaExistente = pessoaRepository.findByEmail(pessoa.getEmail());
+
+        if (pessoaExistente.isPresent()) {
+            throw new RuntimeException("Já existe uma pessoa cadastrada com esse email.");
+        }
+
+        return pessoaRepository.save(pessoa);
     }
 
-    public void deletar(Long id) {
-        repository.deleteById(id);
+    public Optional<Pessoa> atualizar(Long id, Pessoa dadosAtualizados) {
+        Optional<Pessoa> pessoaOptional = pessoaRepository.findById(id);
+
+        if (pessoaOptional.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Pessoa pessoa = pessoaOptional.get();
+        pessoa.setNome(dadosAtualizados.getNome());
+        pessoa.setEmail(dadosAtualizados.getEmail());
+
+        return Optional.of(pessoaRepository.save(pessoa));
+    }
+
+    public boolean deletar(Long id) {
+        Optional<Pessoa> pessoaOptional = pessoaRepository.findById(id);
+
+        if (pessoaOptional.isEmpty()) {
+            return false;
+        }
+
+        pessoaRepository.deleteById(id);
+        return true;
     }
 }

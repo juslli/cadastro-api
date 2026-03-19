@@ -2,7 +2,7 @@ FROM eclipse-temurin:17-jdk AS build
 
 WORKDIR /app
 
-COPY . .
+COPY src/test .
 
 RUN chmod +x mvnw && ./mvnw clean package -DskipTests
 
